@@ -16,7 +16,7 @@ const AuthRouter = express.Router();
 AuthRouter.post("/login", handleLogin);
 AuthRouter.post("/user", checkLogin);
 AuthRouter.get("/user", AccesEndpoint, getUser);
-AuthRouter.post("/register", AccesEndpoint, handleRegister);
+AuthRouter.post("/register",  handleRegister);
 AuthRouter.post("/logout", AccesEndpoint, handleLogout);
 AuthRouter.delete("/user/:id", AccesEndpoint, handleDeleteUser);
 AuthRouter.put("/user/name/:id", AccesEndpoint, updateDataNameUser);
