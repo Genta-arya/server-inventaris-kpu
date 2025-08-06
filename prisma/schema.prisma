@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  name      String?
+  password  String
+  avatar    String?
+  email     String?
+  otp       String?
+  token     String?
+  status    Boolean  @default(false)
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Barang {
+  id            String         @id @default(uuid())
+  kodeBarang    String
+  namaBarang    String
+  nomorRegister String
+  merkType      String
+  ukuran        String
+  qty           Int
+  tahun         Int
+  hargaBarang   Float
+  kondisi       String
+  jenis         String
+  foto          String?        @db.Text
+  perolehan     String
+  imageBarcode  String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  barangKeluar  BarangKeluar[]
+  barangMasuk   BarangMasuk[]
+  permintaan    Permintaan[]
+  peminjaman    Peminjaman[]
+  inventaris    Inventaris[]
+}
+
+model BarangMasuk {
+  id         Int      @id @default(autoincrement())
+  barangId   String
+  qty        Int
+  tanggal    DateTime @default(now())
+  keterangan String?
+  barang     Barang   @relation(fields: [barangId], references: [id])
+}
+
+model BarangKeluar {
+  id         Int      @id @default(autoincrement())
+  barangId   String
+  qty        Int
+  tanggal    DateTime @default(now())
+  keterangan String?
+  ruanganId  Int?
+
+  barang  Barang   @relation(fields: [barangId], references: [id])
+  ruangan Ruangan? @relation(fields: [ruanganId], references: [id]) // Menambahkan relasi dengan Ruangan
+}
+
+model Ruangan {
+  id           Int            @id @default(autoincrement())
+  nama         String
+  kodeRuang    String
+  permintaan   Permintaan[]
+  inventaris   Inventaris[]
+  barangKeluar BarangKeluar[] // Menambahkan relasi dengan BarangKeluar
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Permintaan {
+  id        Int      @id @default(autoincrement())
+  qty       Int
+  nama      String   @default("")
+  status    Boolean?
+  barangId  String
+  barang    Barang   @relation(fields: [barangId], references: [id])
+  ruanganId Int
+  ruangan   Ruangan  @relation(fields: [ruanganId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Usulan {
+  id         Int      @id @default(autoincrement())
+  status     String?
+  nama       String?
+  unit       String?
+  namaBarang String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Inventaris {
+  id        Int      @id @default(autoincrement())
+  qty       Int
+  barangId  String
+  barang    Barang   @relation(fields: [barangId], references: [id])
+  ruanganId Int
+  ruangan   Ruangan  @relation(fields: [ruanganId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([barangId, ruanganId])
+}
+
+model Peminjaman {
+  id             Int       @id @default(autoincrement())
+  qty            Int
+  nama           String    @default("")
+  status         String
+  status_kembali String?
+  barangId       String
+  barang         Barang    @relation(fields: [barangId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @db.Timestamp(0)
+}
